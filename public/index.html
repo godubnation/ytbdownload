@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="基于 yt-dlp 的本地 YouTube 视频下载工具。" />
+    <meta name="theme-color" content="#10131c" />
+    <title>TubeDrop · 本地视频下载</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2310131c'/%3E%3Cpath d='M32 13v28m0 0 12-12M32 41 20 29' fill='none' stroke='%237aa2ff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M16 49h32' stroke='%23f6f7fb' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-glow page-glow-one"></div>
+    <div class="page-glow page-glow-two"></div>
+
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="TubeDrop 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M16 6v13m0 0 6-6m-6 6-6-6M7 25h18"/></svg>
+        </span>
+        <span>TubeDrop</span>
+      </a>
+      <span class="local-badge"><i></i>仅在本机运行</span>
+    </header>
+
+    <main class="shell">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">POWERED BY YT-DLP</p>
+        <h1 id="page-title">把想看的视频，<br /><span>留在你的设备里。</span></h1>
+        <p class="intro-copy">粘贴 YouTube 链接，选择画质，然后下载。链接与文件不会上传到第三方服务器。</p>
+      </section>
+
+      <section class="workspace" aria-label="视频下载工具">
+        <form id="lookup-form" class="url-form" novalidate>
+          <label for="video-url">YouTube 视频链接</label>
+          <div class="url-row">
+            <div class="url-input-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1-.1l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"/></svg>
+              <input id="video-url" name="url" type="url" inputmode="url" autocomplete="url" placeholder="https://www.youtube.com/watch?v=..." required />
+              <button id="clear-button" class="clear-button" type="button" aria-label="清空链接" hidden>×</button>
+            </div>
+            <button id="lookup-button" class="primary-button" type="submit">
+              <span class="button-label">读取视频</span>
+              <span class="button-spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p id="form-message" class="form-message" role="alert" aria-live="polite"></p>
+        </form>
+
+        <div id="empty-state" class="empty-state">
+          <div class="empty-visual" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><rect x="10" y="15" width="44" height="34" rx="8"/><path d="m28 25 13 7-13 7V25Z"/></svg>
+          </div>
+          <p>视频信息会显示在这里</p>
+          <span>支持 youtube.com 和 youtu.be 链接</span>
+        </div>
+
+        <article id="video-card" class="video-card" hidden>
+          <div class="thumbnail-wrap">
+            <img id="thumbnail" alt="" />
+            <span id="duration" class="duration"></span>
+          </div>
+          <div class="video-details">
+            <div>
+              <p id="channel" class="channel"></p>
+              <h2 id="video-title"></h2>
+              <p id="video-meta" class="video-meta"></p>
+            </div>
+
+            <fieldset id="quality-options" class="quality-options">
+              <legend>下载格式</legend>
+              <label class="quality-pill"><input type="radio" name="quality" value="best" checked /><span>最佳</span></label>
+              <label class="quality-pill"><input type="radio" name="quality" value="1080" /><span>1080p</span></label>
+              <label class="quality-pill"><input type="radio" name="quality" value="720" /><span>720p</span></label>
+              <label class="quality-pill"><input type="radio" name="quality" value="480" /><span>480p</span></label>
+              <label class="quality-pill audio-pill"><input type="radio" name="quality" value="audio" /><span>MP3 音频</span></label>
+            </fieldset>
+
+            <button id="download-button" class="download-button" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 21h14"/></svg>
+              <span>开始下载</span>
+            </button>
+          </div>
+        </article>
+
+        <section id="progress-panel" class="progress-panel" aria-live="polite" hidden>
+          <div class="progress-heading">
+            <div>
+              <span id="progress-kicker">正在下载</span>
+              <strong id="progress-title">准备任务…</strong>
+            </div>
+            <span id="progress-percent">0%</span>
+          </div>
+          <div class="progress-track"><div id="progress-bar"></div></div>
+          <div class="progress-meta">
+            <span id="progress-speed">连接中</span>
+            <span id="progress-eta"></span>
+          </div>
+          <a id="save-file-button" class="save-file-button" href="#" hidden>保存文件到设备</a>
+        </section>
+      </section>
+
+      <footer>
+        <p>请仅下载你有权保存的内容，并遵守 YouTube 服务条款与当地法律。</p>
+        <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noreferrer">开源引擎：yt-dlp</a>
+      </footer>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
